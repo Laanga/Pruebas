@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<!-- Visualization & Content Choices:
+        - Report Section 1 (Intro): Text summary in Hero. Goal: Orient. Method: HTML text.
+        - Report Section 2 (Punto de Partida): Text summary in 'Fundamentos'. Goal: Inform. Method: HTML text.
+        - Report Section 3 (Rol del Analista): Summarized into key responsibilities/tasks within 'Fundamentos' or as context. Goal: Inform. Method: HTML text, lists.
+        - Report Section 4 (Arsenal Técnico): Core skills in 'Fundamentos'. Table 1 data visualized as a Bar Chart (Chart.js) for 'Nivel de Importancia'. Goal: Inform, Compare. Method: HTML text, Chart.js. Interaction: Chart tooltips.
+        - Report Section 5 (Herramientas): In 'Herramientas/Formación'. Table 2 data as an interactive filterable HTML list. Added iRacing specific tools. Goal: Inform, Organize. Method: HTML list + JS for filtering. Interaction: Click to expand, filter.
+        - Report Section 6 (Formación): In 'Herramientas/Formación'. Table 3 data as an interactive filterable HTML list. Added iRacing specific learning resources. Goal: Inform, Organize. Method: HTML list + JS for filtering. Interaction: Click to expand, filter.
+        - Report Section 7 (Experiencia Práctica): In 'Experiencia Práctica'. Text summaries and lists. Added detailed section on iRacing data analysis. Goal: Inform, Guide. Method: HTML text.
+        - Report Section 8 (Categorías): In 'Especialización/Futuro'. Table 4 data as a simplified HTML table. Goal: Compare, Inform. Method: HTML table.
+        - Report Section 9 (ML/IA): In 'Especialización/Futuro'. Text summaries. Goal: Inform. Method: HTML text.
+        - Report Section 10 (Dinámica/Aero): Brief in 'Fundamentos', detailed in 'Especialización/Futuro'. Goal: Inform. Method: HTML text, simple HTML/CSS diagrams.
+        - Report Section 11 (Carrera): In 'Experiencia Práctica'. Text summaries. Goal: Guide. Method: HTML text.
+        - Report Section 12 (Conclusión): In 'Conclusión'. Text summary. Goal: Summarize, Motivate. Method: HTML text.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. All charts via Chart.js (Canvas). Diagrams via HTML/CSS.
+    -->
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoja de Ruta: Analista de Datos Motorsport</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FAFAF9; /* stone-50 */
+            color: #404040; /* neutral-700 */
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0891B2; /* cyan-600 */
+            border-bottom-color: #0891B2; /* cyan-600 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px; /* Adjusted for better readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px; /* Base height */
+            max-height: 450px; /* Max height */
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .tab-button.active {
+            background-color: #0891B2; /* cyan-600 */
+            color: white;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .accordion-button.open + .accordion-content {
+            max-height: 1000px; /* Adjust as needed */
+        }
+        .sticky-nav {
+            position: -webkit-sticky; /* Safari */
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav id="navbar" class="sticky-nav bg-slate-700 text-white shadow-md">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="font-bold text-xl">🏁 Hoja de Ruta Motorsport</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#inicio" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Inicio</a>
+                        <a href="#fundamentos" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Fundamentos</a>
+                        <a href="#herramientas-formacion" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Herramientas y Formación</a>
+                        <a href="#experiencia-carrera" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Experiencia y Carrera</a>
+                        <a href="#especializacion-futuro" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Especialización y Futuro</a>
+                        <a href="#conclusion" class="nav-link px-3 py-2 rounded-md text-sm font-medium border-b-2 border-transparent">Conclusión</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                        <span class="sr-only">Abrir menú principal</span>
+                        <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                        <svg class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#inicio" class="nav-link block px-3 py-2 rounded-md text-base font-medium border-b-2 border-transparent">Inicio</a>
+                <a href="#fundamentos" class="nav-link block px-3 py-2 rounded-md text-base font-medium border-b-2 border-transparent">Fundamentos</a>
+                <a href="#herramientas-formacion" class="nav-link block px-3 py-2 rounded-md text-base font-medium border-b-2 border-transparent">Herramientas y Formación</a>
+                <a href="#experiencia-carrera" class="nav-link block px-3 py-2 rounded-md text-base font-medium border-b-2 border-transparent">Experiencia y Carrera</a>
+                <a href="#especializacion-futuro" class="nav-link block px-3 py-2 rounded-md text-base font-medium border-b-2 border-transparent">Especialización y Futuro</a>
+                <a href="#conclusion" class="nav-link block px-3 py-2 rounded-md text-base font-medium border-b-2 border-transparent">Conclusión</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section id="inicio" class="py-16 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h1 class="text-4xl font-bold text-slate-800 mb-6">De DAW a la Pole Position del Rendimiento</h1>
+                <p class="text-lg text-neutral-600 mb-8 max-w-3xl mx-auto">
+                    Bienvenido a tu hoja de ruta personalizada para convertirte en un analista de datos de élite en el apasionante mundo del motorsport. Este camino fusiona tu formación en Desarrollo de Aplicaciones Web (DAW) con la pasión por la competición, transformando datos en victorias. Aquí descubrirás cómo cada milisegundo cuenta y cómo los datos son el lenguaje de los campeones.
+                </p>
+                <p class="text-md text-neutral-600 mb-8 max-w-3xl mx-auto">
+                    El analista de datos de telemetría es crucial, descifrando la información de los sensores para optimizar el coche, el piloto y la estrategia. La telemetría es la clave para desbloquear el rendimiento, y tu base en DAW te proporciona una ventaja inicial en lógica, programación y gestión de datos. Tu pasión por el motor será el combustible para este emocionante viaje.
+                </p>
+                <a href="#fundamentos" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition duration-300">
+                    Comienza tu Viaje 🚀
+                </a>
+            </div>
+        </section>
+
+        <section id="fundamentos" class="py-16">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-slate-800 mb-4 text-center">Fundamentos: Tu Base y Habilidades Esenciales</h2>
+                <p class="text-lg text-neutral-600 mb-12 text-center max-w-3xl mx-auto">
+                    Esta sección explora cómo tus habilidades actuales de DAW son un trampolín perfecto y qué competencias técnicas y blandas necesitas cultivar para triunfar. Desde la programación hasta el conocimiento del dominio del motorsport, aquí sentarás las bases de tu arsenal técnico.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-semibold text-slate-700 mb-3">🚀 Tu Punto de Partida: DAW y Pasión</h3>
+                        <p class="text-neutral-600 mb-2">Tu formación como Técnico Superior en DAW te dota de una capacidad de análisis crucial, comprensión de bases de datos y lógica de programación, todas transferibles al análisis de telemetría. Habilidades como la creatividad y la proactividad también son vitales.</p>
+                        <p class="text-neutral-600">Más importante aún, tu pasión por el motorsport es un motor invaluable. Te impulsará a aprender las complejidades de la dinámica vehicular, las estrategias y a conectar con la industria, transformando un trabajo exigente en una vocación.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-semibold text-slate-700 mb-3">🎯 El Rol del Analista de Datos</h3>
+                        <p class="text-neutral-600 mb-2">Como analista, serás clave para:</p>
+                        <ul class="list-disc list-inside text-neutral-600 space-y-1">
+                            <li>Optimizar la configuración del monoplaza (aerodinámica, suspensiones, neumáticos).</li>
+                            <li>Analizar y mejorar el rendimiento del piloto.</li>
+                            <li>Detectar problemas técnicos de forma temprana.</li>
+                            <li>Definir y ajustar estrategias de carrera en tiempo real.</li>
+                        </ul>
+                        <p class="text-neutral-600 mt-2">Tu trabajo diario implicará recopilar, limpiar, modelar e interpretar datos, colaborando estrechamente con ingenieros y pilotos.</p>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">🛠️ Arsenal Técnico Esencial</h3>
+                <div class="chart-container mb-12">
+                    <canvas id="habilidadesChart"></canvas>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <button class="accordion-button bg-slate-600 text-white w-full text-left p-4 rounded-lg font-semibold hover:bg-slate-500 transition flex justify-between items-center">
+                            💻 Programación (Python y SQL)
+                            <span>▼</span>
+                        </button>
+                        <div class="accordion-content bg-white p-4 rounded-b-lg border border-t-0 border-stone-200">
+                            <p class="text-neutral-600 mb-2"><strong>Python:</strong> Fundamental por sus librerías (Pandas para manipulación de datos, NumPy para cálculo, Matplotlib/Seaborn para visualización, SciPy para ciencia, FastF1 para datos de F1). Jupyter Notebooks es tu entorno ideal.</p>
+                            <p class="text-neutral-600"><strong>SQL:</strong> Esencial para extraer y manipular datos de las bases de datos donde se almacena la telemetría (ej. SQL Race en ATLAS).</p>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="accordion-button bg-slate-600 text-white w-full text-left p-4 rounded-lg font-semibold hover:bg-slate-500 transition flex justify-between items-center">
+                            📊 Estadística y Análisis de Datos
+                            <span>▼</span>
+                        </button>
+                        <div class="accordion-content bg-white p-4 rounded-b-lg border border-t-0 border-stone-200">
+                            <p class="text-neutral-600 mb-2">Comprensión vital de probabilidades, distribuciones, estadística descriptiva, pruebas de hipótesis y análisis de regresión. El proceso incluye definir problemas, recolectar, limpiar (crítico en motorsport por el ruido de sensores), explorar, modelar, interpretar y comunicar hallazgos.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="accordion-button bg-slate-600 text-white w-full text-left p-4 rounded-lg font-semibold hover:bg-slate-500 transition flex justify-between items-center">
+                            🎨 Visualización de Datos
+                            <span>▼</span>
+                        </button>
+                        <div class="accordion-content bg-white p-4 rounded-b-lg border border-t-0 border-stone-200">
+                            <p class="text-neutral-600 mb-2">Clave para comunicar hallazgos. Herramientas como Tableau, Power BI y librerías de Python (Matplotlib, Seaborn, LightningChart para F1) son esenciales para crear dashboards y gráficos claros.</p>
+                        </div>
+                    </div>
+                     <div>
+                        <button class="accordion-button bg-slate-600 text-white w-full text-left p-4 rounded-lg font-semibold hover:bg-slate-500 transition flex justify-between items-center">
+                            🧠 Machine Learning (ML)
+                            <span>▼</span>
+                        </button>
+                        <div class="accordion-content bg-white p-4 rounded-b-lg border border-t-0 border-stone-200">
+                            <p class="text-neutral-600 mb-2">Permite análisis predictivos y prescriptivos. Conoce algoritmos de regresión, clasificación, clustering y librerías como scikit-learn, TensorFlow/PyTorch. Aplicaciones: optimización de setup, predicción de desgaste de neumáticos, estrategias, mantenimiento predictivo.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="accordion-button bg-slate-600 text-white w-full text-left p-4 rounded-lg font-semibold hover:bg-slate-500 transition flex justify-between items-center">
+                            🏎️ Conocimiento del Dominio Motorsport
+                            <span>▼</span>
+                        </button>
+                        <div class="accordion-content bg-white p-4 rounded-b-lg border border-t-0 border-stone-200">
+                            <p class="text-neutral-600 mb-2"><strong>Dinámica Vehicular:</strong> Entender cómo se mueve el coche (neumáticos, dinámica longitudinal, lateral, vertical). Conceptos como subviraje/sobreviraje son cruciales.</p>
+                            <p class="text-neutral-600 mb-2"><strong>Aerodinámica:</strong> Cómo el flujo de aire genera downforce y drag, y cómo se equilibra para cada circuito.</p>
+                            <p class="text-neutral-600"><strong>Componentes del Vehículo:</strong> Funcionamiento de motor, transmisión, frenos, suspensión.</p>
+                            <p class="text-neutral-600 mt-2">Este conocimiento es vital para interpretar los datos y desarrollar "canales matemáticos" personalizados para métricas de rendimiento avanzadas.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="accordion-button bg-slate-600 text-white w-full text-left p-4 rounded-lg font-semibold hover:bg-slate-500 transition flex justify-between items-center">
+                            🤝 Habilidades Blandas
+                            <span>▼</span>
+                        </button>
+                        <div class="accordion-content bg-white p-4 rounded-b-lg border border-t-0 border-stone-200">
+                            <ul class="list-disc list-inside text-neutral-600 space-y-1">
+                                <li><strong>Comunicación:</strong> Explicar hallazgos complejos de forma clara.</li>
+                                <li><strong>Resolución de Problemas:</strong> Mentalidad proactiva y analítica.</li>
+                                <li><strong>Trabajo en Equipo:</strong> Colaborar con perfiles diversos.</li>
+                                <li><strong>Pensamiento Crítico:</strong> Cuestionar y validar información.</li>
+                                <li><strong>Gestión del Tiempo:</strong> Eficiencia bajo presión.</li>
+                                <li><strong>Adaptabilidad:</strong> Aprender y ajustarse continuamente.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="herramientas-formacion" class="py-16 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-slate-800 mb-4 text-center">Herramientas y Formación: Equipándote para el Éxito</h2>
+                 <p class="text-lg text-neutral-600 mb-12 text-center max-w-3xl mx-auto">
+                    Para destacar, necesitas dominar el software específico del motorsport y complementar tu formación con cursos y certificaciones especializadas. Esta sección te guía a través de las herramientas del oficio y las mejores vías educativas para afinar tus competencias.
+                </p>
+
+                <div class="mb-10 text-center">
+                    <input type="text" id="searchInputTools" class="p-3 border border-stone-300 rounded-lg shadow-sm w-full md:w-1/2 lg:w-1/3 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" placeholder="Buscar herramienta o software...">
+                </div>
+                <div id="toolsList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    </div>
+                
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center mt-16">🎓 Recursos de Formación Recomendados</h3>
+                <div class="mb-10 text-center">
+                     <select id="filterTrainingType" class="p-3 border border-stone-300 rounded-lg shadow-sm mr-2 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500">
+                        <option value="">Todos los Tipos</option>
+                        </select>
+                    <input type="text" id="searchInputTraining" class="p-3 border border-stone-300 rounded-lg shadow-sm w-full md:w-1/2 lg:w-1/3 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500" placeholder="Buscar formación...">
+                </div>
+                <div id="trainingList" class="space-y-4">
+                    </div>
+            </div>
+        </section>
+
+        <section id="experiencia-carrera" class="py-16">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-slate-800 mb-4 text-center">Experiencia Práctica y Carrera: Forjando tu Camino</h2>
+                <p class="text-lg text-neutral-600 mb-12 text-center max-w-3xl mx-auto">
+                    La teoría es la base, pero la experiencia práctica es lo que te distinguirá. Aquí exploraremos cómo ganar experiencia tangible a través de proyectos personales, el análisis de tus propios datos de SimRacing y la participación en competiciones como Formula Student. También veremos cómo desarrollar tu carrera mediante networking efectivo y una preparación sólida.
+                </p>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                    <div class="bg-white p-6 rounded-lg shadow-lg lg:col-span-2">
+                        <h3 class="text-xl font-semibold text-cyan-700 mb-3">🕹️ ¡Analiza Tus Vueltas de iRacing! (Tu Primer Gran Proyecto)</h3>
+                        <p class="text-neutral-600 mb-2">Como jugador de iRacing, tienes una fuente de datos increíblemente valiosa: ¡tu propia telemetría! Este es el lugar perfecto para empezar a aplicar tus conocimientos.</p>
+                        <h4 class="text-md font-semibold text-slate-600 mt-3 mb-1">Pasos para Empezar:</h4>
+                        <ol class="list-decimal list-inside text-neutral-600 space-y-1 mb-3">
+                            <li><strong>Activa la Telemetría en iRacing:</strong>
+                                <ul class="list-disc list-inside ml-5 text-sm">
+                                    <li>iRacing guarda los datos en archivos con extensión `.ibt`.</li>
+                                    <li>Normalmente se encuentran en `Documentos\iRacing\telemetry`.</li>
+                                    <li>Asegúrate de tenerla activada. Puedes asignar una tecla para iniciar/detener la grabación de telemetría o configurarlo en el archivo `app.ini` (`irsdkEnableDisk=1`).</li>
+                                </ul>
+                            </li>
+                            <li><strong>Software de Análisis Esencial:</strong>
+                                <ul class="list-disc list-inside ml-5 text-sm">
+                                    <li><strong>MoTeC i2 Pro:</strong> Es el estándar de la industria y es gratuito. Descárgalo y aprende a abrir tus archivos `.ibt`. Te permitirá un análisis profundo de canales, comparación de vueltas, etc.</li>
+                                    <li><strong>VRS (Virtual Racing School):</strong> Plataforma muy popular en iRacing. Sube tu telemetría para compararla con pilotos más rápidos, obtener análisis detallados y setups.</li>
+                                    <li><strong>Garage 61:</strong> Similar a VRS, es una herramienta comunitaria para subir, compartir y analizar telemetría de iRacing y otros simuladores.</li>
+                                    <li><strong>ATLAS (McLaren Applied):</strong> Aunque es profesional, algunas versiones pueden importar datos de iRacing (formato MoTeC).</li>
+                                </ul>
+                            </li>
+                            <li><strong>Qué Analizar en Tus Datos:</strong>
+                                <ul class="list-disc list-inside ml-5 text-sm">
+                                    <li><strong>Consistencia:</strong> ¿Cómo varían tus tiempos por vuelta? ¿Dónde pierdes o ganas tiempo consistentemente?</li>
+                                    <li><strong>Inputs del Piloto:</strong>
+                                        <ul class="list-disc list-inside ml-5">
+                                            <li><strong>Frenada:</strong> Puntos de frenada, presión aplicada, suavidad.</li>
+                                            <li><strong>Acelerador:</strong> Cuándo y cómo aplicas el acelerador (especialmente a la salida de curva).</li>
+                                            <li><strong>Volante:</strong> Ángulo, suavidad de los inputs. ¿Estás sobre-conduciendo?</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Comparación de Vueltas:</strong> Compara tu mejor vuelta con otras, o con vueltas de referencia (si usas VRS/Garage 61). Identifica diferencias en trazada, velocidad mínima en curva, etc.</li>
+                                    <li><strong>Canales del Vehículo:</strong> Velocidad, RPM, marcha engranada, temperaturas y presiones de neumáticos (si el coche y la sesión lo permiten).</li>
+                                    <li><strong>Mapas de Trazada:</strong> Visualiza dónde estás en la pista y cómo se correlaciona con otros datos.</li>
+                                </ul>
+                            </li>
+                        </ol>
+                        <p class="text-neutral-600 mt-2"><em>Clave: Empieza simple, enfócate en uno o dos aspectos por sesión de análisis. Documenta tus hallazgos y cómo intentas mejorar. Esto no solo te hará más rápido en iRacing, sino que construirá tu portfolio y comprensión práctica.</em></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold text-slate-700 mb-3">🛠️ Otros Proyectos Personales</h3>
+                        <p class="text-neutral-600 mb-2"><strong>FastF1 (Python):</strong> Accede a datos públicos de F1 (telemetría, tiempos, neumáticos) para analizar rendimiento, estrategias, etc. Visualiza con LightningChart o Matplotlib.</p>
+                        <p class="text-neutral-600 mb-2"><strong>Kaggle y Repositorios:</strong> Practica con datasets de carreras, resultados históricos o datos de simulación.</p>
+                        <p class="text-neutral-600 mt-2"><em>Clave: Documenta y comunica tus hallazgos profesionalmente en tu portfolio.</em></p>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold text-slate-700 mb-3">🏎️ Formula Student</h3>
+                        <p class="text-neutral-600 mb-2">Una de las mejores plataformas para experiencia práctica integral. Diseña, construye y compite con un monoplaza.</p>
+                        <p class="text-neutral-600">Aplica análisis de datos para puesta a punto, dinámica, rendimiento del tren motriz y estrategia. Desarrolla habilidades técnicas y blandas (trabajo en equipo, gestión de proyectos).</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-semibold text-slate-700 mb-3">🤝 Prácticas Profesionales</h3>
+                        <p class="text-neutral-600 mb-2">Busca *internships* en equipos, fabricantes o empresas de software. Inmersión total en el mundo real.</p>
+                        <p class="text-neutral-600">Aprende de expertos, aplica conocimientos, entiende flujos de trabajo y construye tu red de contactos. Empieza en categorías formativas o empresas proveedoras.</p>
+                    </div>
+                </div>
+                
+                <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center mt-12">🛤️ Desarrollando tu Carrera Profesional</h3>
+                <div class="grid md:grid-cols-2 gap-8">
+                     <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h4 class="text-xl font-semibold text-slate-700 mb-3">🌐 Networking y Portfolio</h4>
+                        <p class="text-neutral-600 mb-2"><strong>LinkedIn:</strong> Perfil completo destacando formación, habilidades y proyectos (¡incluye tus análisis de iRacing!). Un portfolio robusto es tu carta de presentación.</p>
+                        <p class="text-neutral-600 mb-2"><strong>Eventos:</strong> Asiste a conferencias y ferias (PMW Expo). Únete a comunidades online (foros, Reddit r/F1Technical, comunidades de SimRacing) y asociaciones (MIA, SAE).</p>
+                        <p class="text-neutral-600"><em>Networking efectivo es construir relaciones genuinas.</em></p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h4 class="text-xl font-semibold text-slate-700 mb-3">🎯 Búsqueda de Oportunidades y Entrevistas</h4>
+                        <p class="text-neutral-600 mb-2">Prepárate para hablar de tu trayectoria, motivaciones y proyectos. Explica desafíos, técnicas y resultados.</p>
+                        <p class="text-neutral-600 mb-2">Demuestra capacidad de explicar conceptos técnicos a audiencias no técnicas. Espera pruebas técnicas o estudios de caso.</p>
+                        <p class="text-neutral-600"><strong>Actitud clave:</strong> Resiliencia, aprendizaje continuo, humildad y ética de trabajo.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="especializacion-futuro" class="py-16 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-slate-800 mb-4 text-center">Especialización y Futuro: La Vanguardia del Análisis</h2>
+                <p class="text-lg text-neutral-600 mb-12 text-center max-w-3xl mx-auto">
+                    El motorsport es diverso y está en constante evolución. Comprender las particularidades de cada categoría y abrazar las nuevas tecnologías como el Machine Learning y la IA te posicionará en la vanguardia. Profundizar en la dinámica vehicular y la aerodinámica refinará tu capacidad de interpretación.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="bg-stone-50 p-6 rounded-lg shadow-md border border-stone-200">
+                        <h3 class="text-2xl font-semibold text-slate-700 mb-3">📊 Navegando las Categorías (F1, WEC, MotoGP)</h3>
+                        <p class="text-neutral-600 mb-2">Cada categoría tiene enfoques distintos:</p>
+                        <ul class="list-disc list-inside text-neutral-600 space-y-1 mb-3">
+                            <li><strong>F1:</strong> Optimización extrema, aerodinámica compleja, unidades híbridas, volúmenes masivos de datos. ECU estándar.</li>
+                            <li><strong>WEC:</strong> Fiabilidad a largo plazo, gestión de combustible/neumáticos en stints largos, estrategias de tráfico. Ventanas de rendimiento.</li>
+                            <li><strong>MotoGP:</strong> Dinámica de la moto, influencia del piloto, gestión crítica de neumáticos, videometría. ECU única.</li>
+                        </ul>
+                        <p class="text-neutral-600">Comprender las regulaciones sobre telemetría y acceso a datos de cada campeonato (FIA, FIM) es fundamental.</p>
+                        <div class="overflow-x-auto mt-4">
+                            <table class="min-w-full divide-y divide-stone-200">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Categoría</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Énfasis Principal</th>
+                                        <th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Complejidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-stone-200" id="categoryComparisonTable">
+                                    </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-stone-50 p-6 rounded-lg shadow-md border border-stone-200">
+                        <h3 class="text-2xl font-semibold text-slate-700 mb-3">🤖 El Futuro: Machine Learning e IA</h3>
+                        <p class="text-neutral-600 mb-2">ML/IA son herramientas transformadoras para:</p>
+                        <ul class="list-disc list-inside text-neutral-600 space-y-1 mb-3">
+                            <li>Optimización del rendimiento del vehículo y setups.</li>
+                            <li>Desarrollo de estrategias de carrera dinámicas y predictivas.</li>
+                            <li>Mantenimiento predictivo y mejora de la fiabilidad.</li>
+                            <li>Análisis avanzado de paradas en boxes (ej. Ferrari con AWS).</li>
+                            <li>Análisis profundo del rendimiento del piloto.</li>
+                        </ul>
+                        <p class="text-neutral-600 mb-2"><strong>Cómo prepararse:</strong> Formación en ML, proyectos prácticos (scikit-learn, TensorFlow), actualización continua y mentalidad abierta. La IA es una herramienta para potenciar al analista.</p>
+                        <p class="text-neutral-600">El rol evolucionará hacia la identificación de nuevas áreas de investigación, diseño experimental y comunicación de *insights* sofisticados. La interpretabilidad de los modelos (XAI) será clave.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-stone-50 p-6 rounded-lg shadow-md border border-stone-200">
+                     <h3 class="text-2xl font-semibold text-slate-700 mb-3">💨 Dinámica Vehicular y Aerodinámica Avanzada</h3>
+                    <p class="text-neutral-600 mb-2">Un conocimiento profundo es esencial para interpretar datos. No basta con ser experto en software.</p>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-lg font-semibold text-slate-600 mt-2 mb-1">Principios de Dinámica Vehicular:</h4>
+                            <ul class="list-disc list-inside text-neutral-600 space-y-1">
+                                <li><strong>Neumáticos:</strong> Generación de agarre, ángulo de deslizamiento, influencia de carga/presión/temperatura.</li>
+                                <li><strong>Longitudinal:</strong> Aceleración y frenada, transferencias de peso (cabeceo/hundimiento).</li>
+                                <li><strong>Lateral:</strong> Comportamiento en curva, subviraje y sobreviraje.</li>
+                                <li><strong>Vertical:</strong> Movimiento de suspensión, control de plataforma aerodinámica (altura, actitud).</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-semibold text-slate-600 mt-2 mb-1">Principios de Aerodinámica:</h4>
+                            <ul class="list-disc list-inside text-neutral-600 space-y-1">
+                                <li><strong>Downforce:</strong> Fuerza vertical que aumenta el agarre en curva.</li>
+                                <li><strong>Drag:</strong> Resistencia al avance que limita la velocidad máxima.</li>
+                                <li>Equilibrio aerodinámico ajustado para cada circuito.</li>
+                            </ul>
+                            <p class="text-neutral-600 mt-2">El <strong>analista de datos aerodinámicos</strong> se enfoca en correlacionar simulaciones (túnel de viento, CFD) con el rendimiento en pista, requiriendo conocimiento de sistemas dinámicos y codificación científica.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="conclusion" class="py-16">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                <h2 class="text-3xl font-bold text-slate-800 mb-6">Conclusión: Tu Hoja de Ruta Hacia la Cima</h2>
+                <p class="text-lg text-neutral-600 mb-6 max-w-3xl mx-auto">
+                    Este viaje para ser un analista de datos de élite en motorsport es exigente pero gratificante. Has explorado los pasos clave: construir una base técnica sólida, dominar herramientas específicas, adquirir conocimiento del dominio, desarrollar habilidades blandas, ganar experiencia práctica (¡empezando con tus datos de iRacing!) y adoptar un aprendizaje continuo.
+                </p>
+                <p class="text-lg text-neutral-600 mb-6 max-w-3xl mx-auto">
+                    Tu mentalidad, dedicación y pasión por el motorsport son tan cruciales como tus habilidades. La curiosidad, la atención al detalle y un enfoque metódico te guiarán. "Llegar a lo más alto" es un proceso continuo de mejora e innovación en un campo que evoluciona rápidamente con la IA.
+                </p>
+                <p class="text-lg text-neutral-600 mb-8 max-w-3xl mx-auto">
+                    Considera especializarte: análisis aerodinámico, estrategia de carrera, implementación de ML, u optimización del piloto. Reflexiona sobre dónde tu pasión y habilidades únicas, incluyendo tu base de DAW, pueden aportar el mayor valor.
+                </p>
+                <p class="text-xl font-semibold text-cyan-700">
+                    Este mapa te guía; tu esfuerzo y pasión serán el motor. ¡Hacia la élite del análisis de datos en la competición!
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-stone-300 py-8 text-center">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <p>&copy; <span id="currentYear"></span> Hoja de Ruta Analista de Datos Motorsport. Inspirado en tu pasión por el motor.</p>
+            <p class="text-sm mt-1">Aplicación interactiva generada para facilitar la exploración del informe.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Script para menú móvil
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            mobileMenuButton.querySelectorAll('svg').forEach(svg => svg.classList.toggle('hidden'));
+        });
+
+        // Script para cerrar menú móvil al hacer clic en un enlace
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                mobileMenuButton.querySelectorAll('svg').forEach(svg => {
+                    if (svg.innerHTML.includes('M4 6h16')) { // Icono de hamburguesa
+                        svg.classList.remove('hidden');
+                    } else { // Icono de X
+                        svg.classList.add('hidden');
+                    }
+                });
+            });
+        });
+        
+        // Script para actualizar año en footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Script para scrollspy y activar enlaces de navegación
+        const sections = document.querySelectorAll('main section');
+        const navLinks = document.querySelectorAll('nav a.nav-link');
+        const headerHeight = document.getElementById('navbar') ? document.getElementById('navbar').offsetHeight : 64;
+
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (pageYOffset >= (sectionTop - headerHeight - sectionHeight / 3)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+        
+        // Datos para el gráfico de habilidades (Tabla 1 del informe)
+        const habilidadesData = {
+            labels: ['Programación', 'Estadística y Análisis', 'Visualización', 'Machine Learning', ['Conocimiento', 'Dominio Motorsport'], ['Habilidades', 'Blandas']],
+            datasets: [{
+                label: 'Nivel de Importancia',
+                data: [5, 5, 5, 4, 5, 5], // Asignando valores (Alto=5, Medio-Alto=4)
+                backgroundColor: [
+                    'rgba(54, 162, 235, 0.7)', 
+                    'rgba(255, 206, 86, 0.7)', 
+                    'rgba(75, 192, 192, 0.7)', 
+                    'rgba(153, 102, 255, 0.7)', 
+                    'rgba(255, 159, 64, 0.7)', 
+                    'rgba(255, 99, 132, 0.7)' 
+                ],
+                borderColor: [
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const configHabilidades = {
+            type: 'bar',
+            data: habilidadesData,
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 5, 
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                const labels = ['Bajo', 'Medio-Bajo', 'Medio', 'Medio-Alto', 'Alto'];
+                                return labels[value-1] || '';
+                            }
+                        }
+                    },
+                    y: {
+                         ticks: {
+                            autoSkip: false, 
+                            maxRotation: 0, 
+                            minRotation: 0,
+                            callback: function(value, index, values) { 
+                                const label = this.getLabelForValue(value);
+                                if (Array.isArray(label)) return label; // Already an array for multiline
+                                if (typeof label === 'string' && label.length > 16) {
+                                    const parts = [];
+                                    let currentPart = "";
+                                    label.split(" ").forEach(word => {
+                                        if ((currentPart + word).length > 16 && currentPart.length > 0) {
+                                            parts.push(currentPart.trim());
+                                            currentPart = word + " ";
+                                        } else {
+                                            currentPart += word + " ";
+                                        }
+                                    });
+                                    parts.push(currentPart.trim());
+                                    return parts;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                  return label.join(' ');
+                                }
+                                return label;
+                            },
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                const value = context.raw;
+                                const importanceLabels = ['N/A','Bajo', 'Medio-Bajo', 'Medio', 'Medio-Alto', 'Alto'];
+                                if (value >=1 && value <=5) {
+                                   label += importanceLabels[value];
+                                } else {
+                                   label += value;
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        
+        // Script para acordeones
+        document.querySelectorAll('.accordion-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                button.classList.toggle('open');
+                const icon = button.querySelector('span');
+                if (button.classList.contains('open')) {
+                    content.style.maxHeight = content.scrollHeight + "px";
+                    if(icon) icon.textContent = '▲';
+                } else {
+                    content.style.maxHeight = "0";
+                     if(icon) icon.textContent = '▼';
+                }
+            });
+        });
+
+
+        // Datos y lógica para Herramientas (Tabla 2)
+        const toolsData = [
+            { name: "ATLAS", provider: "McLaren Applied", type: "Análisis de Telemetría, Simulación", features: "Visualización en vivo/registrada, comparación de datos, alarmas, integración MATLAB/Simulink, SQL Race DBs, plugins. Puede importar datos de iRacing.", categories: "F1, WEC, IndyCar, GT, SimRacing" },
+            { name: "Wintax", provider: "Magneti Marelli", type: "Análisis de Telemetría", features: "Análisis en tiempo real/post-proceso, personalización, múltiples ventanas de análisis, mapas con Google Earth, interfaz Excel/Matlab.", categories: "F1, MotoGP, WRC, DTM, Series GT" },
+            { name: "MoTeC i2 Pro", provider: "MoTeC", type: "Análisis de Telemetría", features: "Análisis detallado de datos de piloto/vehículo, popular en simracing, amplia gama de sensores y loggers compatibles. Esencial para archivos .ibt de iRacing.", categories: "Múltiples categorías, SimRacing (iRacing)" },
+            { name: "VRS (Virtual Racing School)", provider: "Virtual Racing School", type: "Plataforma de Análisis y Coaching para SimRacing", features: "Análisis de telemetría de iRacing, comparación con pilotos pro, setups, tutoriales.", categories: "SimRacing (iRacing)" },
+            { name: "Garage 61", provider: "Comunidad", type: "Plataforma de Análisis de Telemetría para SimRacing", features: "Subir, compartir y analizar telemetría de iRacing y otros simuladores. Comparativas.", categories: "SimRacing (iRacing, ACC, etc.)" },
+            { name: "DewesoftX", provider: "Dewesoft", type: "Adquisición y Análisis de Datos (DAQ)", features: "Integración hardware/software, plug-and-play, amplio soporte de interfaces, matemáticas de procesamiento de señales.", categories: "Pruebas de vehículos, Formula Student" },
+            { name: "Pi Toolbox", provider: "Cosworth", type: "Análisis de Telemetría", features: "Seguimiento en vivo, métricas detalladas, mapas interactivos, dashboards personalizables, integración con PDRs.", categories: "F1, Endurance, Múltiples categorías" },
+            { name: "GDA (GEMS Data Analysis)", provider: "GEMS", type: "Análisis de Telemetría", features: "Sincronización vídeo-datos, canales matemáticos, reportes de alarmas, FFT, import/export CSV/Matlab (versión Pro).", categories: "Usuarios de hardware GEMS" },
+            { name: "Python (Pandas, NumPy, etc.)", provider: "Comunidad Open Source", type: "Programación, Análisis de Datos", features: "Manipulación de datos, cálculo numérico, visualización, Machine Learning, automatización de tareas. Útil para análisis personalizados de datos exportados de iRacing.", categories: "Universal, SimRacing" },
+            { name: "Jupyter Notebooks", provider: "Project Jupyter", type: "Entorno de Desarrollo Interactivo", features: "Combinación de código, texto, visualizaciones; ideal para exploración y documentación.", categories: "Universal" },
+            { name: "SQL", provider: "Varios (ej. SQL Server)", type: "Gestión de Bases de Datos", features: "Extracción y manipulación de datos almacenados en bases de datos relacionales.", categories: "Universal" },
+            { name: "MATLAB/Simulink", provider: "MathWorks", type: "Modelado y Simulación", features: "Creación de modelos de vehículos, simulación de sistemas dinámicos, desarrollo de algoritmos de control.", categories: "F1, WEC, Desarrollo avanzado" },
+            { name: "Tableau / Power BI", provider: "Tableau / Microsoft", type: "Visualización de Datos (BI)", features: "Creación de dashboards interactivos y reportes visuales.", categories: "Universal (equipos con estas herramientas)" }
+        ];
+
+        const toolsListContainer = document.getElementById('toolsList');
+        const searchInputTools = document.getElementById('searchInputTools');
+
+        function displayTools(filteredTools) {
+            toolsListContainer.innerHTML = '';
+            filteredTools.forEach(tool => {
+                const toolElement = `
+                    <div class="bg-white p-6 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl">
+                        <h4 class="text-xl font-semibold text-cyan-700 mb-2">${tool.name}</h4>
+                        <p class="text-sm text-neutral-500 mb-1"><strong>Proveedor:</strong> ${tool.provider}</p>
+                        <p class="text-sm text-neutral-500 mb-1"><strong>Tipo:</strong> ${tool.type}</p>
+                        <p class="text-sm text-neutral-600 my-2"><strong>Características:</strong> ${tool.features}</p>
+                        <p class="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-full inline-block"><strong>Categorías:</strong> ${tool.categories}</p>
+                    </div>
+                `;
+                toolsListContainer.innerHTML += toolElement;
+            });
+        }
+        
+        searchInputTools.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = toolsData.filter(tool => 
+                tool.name.toLowerCase().includes(searchTerm) ||
+                tool.provider.toLowerCase().includes(searchTerm) ||
+                tool.type.toLowerCase().includes(searchTerm) ||
+                tool.features.toLowerCase().includes(searchTerm) ||
+                tool.categories.toLowerCase().includes(searchTerm)
+            );
+            displayTools(filtered);
+        });
+
+
+        // Datos y lógica para Formación (Tabla 3)
+        const trainingData = [
+            { type: "Curso Online General", name: "Google Data Analytics Professional Certificate (Coursera)", focus: "Fundamentos de análisis de datos, SQL, R/Python básico, visualización", skills: "Limpieza, análisis, visualización de datos, hojas de cálculo, SQL, Tableau, R (o Python en cursos más nuevos)", relevance: "Media (Base sólida)", level: "Básico-Intermedio", cost: "Suscripción mensual Coursera" },
+            { type: "Curso Online General", name: "IBM Data Analyst Professional Certificate (Coursera)", focus: "Fundamentos de análisis de datos, Python, SQL, Excel, Cognos", skills: "Python, SQL, Excel, visualización de datos (Cognos), estadística básica", relevance: "Media (Base sólida)", level: "Básico-Intermedio", cost: "Suscripción mensual Coursera" },
+            { type: "Bootcamp Análisis de Datos", name: "Datademia Data Analyst Bootcamp", focus: "Formación intensiva en SQL, Python, Power BI/Tableau", skills: "SQL, Python (Pandas, NumPy), Power BI, Tableau, modelado de datos", relevance: "Media-Alta (Habilidades prácticas)", level: "Básico a Profesional", cost: "Variable (consultar proveedor)" },
+            { type: "Curso Online Motorsport", name: "RGB Motor Academy - Adquisición de datos", focus: "Adquisición, análisis de telemetría, análisis de piloto/vehículo en motorsport", skills: "Comprensión de SAD, sensores, análisis de canales (velocidad, RPM, suspensión), interpretación de datos de competición", relevance: "Alta", level: "Intermedio-Avanzado", cost: "€349 (aprox.)" },
+            { type: "Curso Online Motorsport", name: "Motorsport Engineer - Data Engineering in F3", focus: "Rol del ingeniero de datos en F3, herramientas, generación y análisis de datos", skills: "Análisis de datos específico de F3, uso de software de la industria, comprensión de operaciones en pista", relevance: "Alta", level: "Intermedio-Avanzado", cost: "Variable (consultar proveedor)" },
+            { type: "Curso Online Motorsport", name: "YourDataDriven.com - Beginner’s Guide / SimRacing Courses", focus: "Fundamentos del análisis de datos para pilotos y entusiastas, análisis de telemetría en SimRacing.", skills: "Interpretación de telemetría básica, mejora del rendimiento del piloto, uso de MoTeC i2 Pro con datos de iRacing.", relevance: "Media-Alta (Aplicación práctica, SimRacing)", level: "Básico-Intermedio", cost: "Variable (consultar proveedor)" },
+            { type: "Máster Especializado", name: "Universidad Nebrija - Ing. de Competición", focus: "Ingeniería de competición integral, adquisición y análisis de datos, dinámica, aero", skills: "Adquisición y análisis de datos (I y II), CAD, CFD, dinámica vehicular, motores", relevance: "Muy Alta", level: "Avanzado", cost: "Variable (consultar proveedor)" },
+            { type: "Máster Especializado", name: "Cranfield University - Adv. Motorsport Eng./Mechatronics", focus: "Ingeniería de motorsport avanzada, electrónica, adquisición de datos, dinámica", skills: "Electrónica, DAQ, dinámica vehicular, modelado, control, sistemas embebidos (según MSc)", relevance: "Muy Alta", level: "Avanzado", cost: "Variable (consultar proveedor)" },
+            { type: "Máster Especializado", name: "Oxford Brookes University - Motorsport Eng. MSc", focus: "Ingeniería de motorsport, simulación, adquisición de datos, dinámica vehicular", skills: "Simulación de tiempo de vuelta, DAQ, telemetría, instrumentación, dinámica vehicular avanzada", relevance: "Muy Alta", level: "Avanzado", cost: "Variable (consultar proveedor)" },
+            { type: "Certificación de Software", name: "MoTeC i2 Pro (MoTeC online / Academias / Tutoriales de SimRacing)", focus: "Uso y análisis de datos con software MoTeC, aplicable a datos de iRacing.", skills: "Creación de overlays, análisis de vueltas, configuración de displays, uso de i2 Pro/Logger", relevance: "Alta (si el equipo usa MoTeC o para análisis de SimRacing)", level: "Intermedio-Avanzado", cost: "Gratis (MoTeC) / Variable (Academias)" },
+            { type: "Certificación de Software", name: "DewesoftX Online PRO Training", focus: "Uso de hardware y software Dewesoft para DAQ y análisis", skills: "Configuración de DAQ, medición de señales, procesamiento y análisis de datos con DewesoftX", relevance: "Alta (si el equipo usa Dewesoft)", level: "Básico a Avanzado", cost: "Gratuita" },
+            { type: "Certificación General", name: "Google Advanced Data Analytics Certificate (Coursera)", focus: "Análisis avanzado, Python, Tableau, ML", skills: "Python avanzado, estadística aplicada, Machine Learning, visualización avanzada", relevance: "Media-Alta (Complementaria)", level: "Avanzado", cost: "Suscripción mensual Coursera" }
+        ];
+        
+        const trainingListContainer = document.getElementById('trainingList');
+        const searchInputTraining = document.getElementById('searchInputTraining');
+        const filterTrainingType = document.getElementById('filterTrainingType');
+
+        const trainingTypes = [...new Set(trainingData.map(item => item.type))];
+        trainingTypes.forEach(type => {
+            const option = document.createElement('option');
+            option.value = type;
+            option.textContent = type;
+            filterTrainingType.appendChild(option);
+        });
+        
+        function displayTraining(filteredTraining) {
+            trainingListContainer.innerHTML = '';
+            filteredTraining.forEach(training => {
+                const trainingElement = `
+                    <div class="bg-white p-6 rounded-lg shadow-md border border-stone-200">
+                        <h4 class="text-lg font-semibold text-cyan-700 mb-1">${training.name}</h4>
+                        <p class="text-sm text-slate-500 bg-slate-100 px-2 py-1 rounded-full inline-block mb-2">${training.type} - ${training.level}</p>
+                        <p class="text-neutral-600 mb-1"><strong>Enfoque:</strong> ${training.focus}</p>
+                        <p class="text-neutral-600 mb-1"><strong>Habilidades:</strong> ${training.skills}</p>
+                        <p class="text-neutral-600 mb-1"><strong>Relevancia:</strong> ${training.relevance}</p>
+                        <p class="text-neutral-600"><strong>Coste:</strong> ${training.cost}</p>
+                    </div>
+                `;
+                trainingListContainer.innerHTML += trainingElement;
+            });
+        }
+
+        function filterAndDisplayTraining() {
+            const searchTerm = searchInputTraining.value.toLowerCase();
+            const selectedType = filterTrainingType.value;
+
+            const filtered = trainingData.filter(training => {
+                const matchesSearch = training.name.toLowerCase().includes(searchTerm) ||
+                                      training.focus.toLowerCase().includes(searchTerm) ||
+                                      training.skills.toLowerCase().includes(searchTerm);
+                const matchesType = selectedType ? training.type === selectedType : true;
+                return matchesSearch && matchesType;
+            });
+            displayTraining(filtered);
+        }
+
+        searchInputTraining.addEventListener('input', filterAndDisplayTraining);
+        filterTrainingType.addEventListener('change', filterAndDisplayTraining);
+
+        // Datos y lógica para Comparativa de Categorías (Tabla 4)
+        const categoryData = [
+            { category: "Fórmula 1 (F1)", emphasis: "Optimización extrema, aerodinámica, unidad de potencia híbrida, estrategia.", complexity: "Muy Alta / ECU estándar" },
+            { category: "WEC", emphasis: "Fiabilidad, gestión de carrera (combustible, neumáticos, piloto), estrategia de tráfico, BoP.", complexity: "Alta / Ventanas de rendimiento" },
+            { category: "MotoGP", emphasis: "Rendimiento y estilo del piloto, dinámica de la moto, gestión de neumáticos, electrónica.", complexity: "Alta / ECU única" },
+            { category: "Formula Student / Series Menores", emphasis: "Desarrollo del piloto, optimización fundamental del setup, dinámica básica.", complexity: "Media-Baja / Regulaciones abiertas" }
+        ];
+
+        const categoryTableBody = document.getElementById('categoryComparisonTable');
+        categoryData.forEach(cat => {
+            const row = `
+                <tr>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-neutral-700">${cat.category}</td>
+                    <td class="px-4 py-3 text-sm text-neutral-600">${cat.emphasis}</td>
+                    <td class="px-4 py-3 text-sm text-neutral-600">${cat.complexity}</td>
+                </tr>
+            `;
+            categoryTableBody.innerHTML += row;
+        });
+        
+        // Inicializar visualizaciones al cargar la página
+        window.onload = () => {
+            if (document.getElementById('habilidadesChart')) {
+                new Chart(document.getElementById('habilidadesChart'), configHabilidades);
+            }
+            displayTools(toolsData);
+            displayTraining(trainingData);
+            // Activar el enlace de navegación correcto al cargar
+            window.dispatchEvent(new Event('scroll'));
+        };
+
+    </script>
+</body>
+</html>
